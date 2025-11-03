@@ -35,7 +35,7 @@ This project relies on external services and specific environment tools:
 
 2. **Data Commons MCP Server**: Start a local instance using the Data Commons CLI:
   ```powershell
-  uvx datacommons-mcp serve http --port 8000
+  uvx datacommons-mcp serve http --port 8001
   ```
 
 3. **Toolbox (PostgreSQL Interface)**: The MCP tool server for PostgreSQL can be started from project root:
