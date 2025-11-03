@@ -1,0 +1,76 @@
+sources:
+  my-pg-source:
+    kind: postgres
+    host: 127.0.0.1
+    port: 5432
+    database: postgres
+    user: postgres
+    password: postgres
+
+tools:
+  postgres-list-tables:
+    kind: postgres-list-tables
+    source: my-pg-source
+    description: Use this tool to retrieve schema information for all or specified tables. Output format can be simple (only table names) or detailed.
+
+  execute-sql-tool:
+    kind: postgres-execute-sql
+    source: my-pg-source
+    description: Use this tool to execute sql statement.
+
+  list-hdb-flats-by-town:
+    kind: postgres-sql
+    source: my-pg-source
+    description: Finds the most recent 5 resale transaction records for HDB flats in the specified town
+    parameters:
+      - name: town
+        type: string
+        description: The town of the HDB flat
+    statement: SELECT * FROM public.resale_transactions t WHERE t.town ILIKE '%' || $1 || '%' ORDER BY t.month DESC LIMIT 5;
+
+  count-hdb-flats-by-town:
+    kind: postgres-sql
+    source: my-pg-source
+    description: Calculates the total number of HDB resale transactions that have occurred in the specified town since 2017
+    parameters:
+      - name: town
+        type: string
+        description: The town of the HDB flat
+    statement: SELECT COUNT(*) as count FROM public.resale_transactions t WHERE t.town ILIKE '%' || $1 || '%';
+
+  percentile-price-by-town:
+    kind: postgres-sql
+    source: my-pg-source
+    description: Calculates a specific resale price percentile (e.g., median price) based on all recorded HDB resale transactions in the specified town
+    parameters:
+      - name: town
+        type: string
+        description: The town to check the percentile price for
+      - name: percentile
+        type: float
+        description: The percentile to calculate (e.g., 0.5 for median, 0.9 for 90th percentile)
+        default: 0.5   
+    statement: SELECT PERCENTILE_CONT($2) WITHIN GROUP (ORDER BY t.resale_price) AS percentile_price FROM public.resale_transactions t WHERE t.town ILIKE '%' || $1 || '%';
+
+  average-price-by-flat-type:
+    kind: postgres-sql
+    source: my-pg-source
+    description: Calculates the average resale price for a specific flat type across all of Singapore or filtered by town
+    parameters:
+      - name: flat_type
+        type: string
+        description: The type of flat (e.g., '3 ROOM', '4 ROOM', '5 ROOM')
+      - name: town
+        type: string
+        description: Optional town filter. Leave empty or use '%' for all of Singapore
+        default: '%'
+    statement: SELECT AVG(t.resale_price) as avg_price FROM public.resale_transactions t WHERE t.flat_type = $1 AND t.town ILIKE '%' || $2 || '%';
+
+toolsets:
+  my-toolset:
+    - postgres-list-tables
+    - execute-sql-tool
+    - list-hdb-flats-by-town
+    - count-hdb-flats-by-town
+    - percentile-price-by-town
+    - average-price-by-flat-type
