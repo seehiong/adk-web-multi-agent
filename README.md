@@ -4,6 +4,8 @@ This repository demonstrates building a multi-agent system using **Google's ADK 
 
 The architecture implements a **Coordinator/Dispatcher** Pattern to route specialized queries to the correct agent.
 
+**Read the full guide here:** [ADK Web Multi-Agent System](https://seehiong.github.io/posts/2025/11/adk-web-multi-agent-system/)
+
 ## Project Structure
 
 ```bash
